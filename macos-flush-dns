@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+if [ "${EUID}" -ne 0 ]
+then
+  printf -- "%s: needs to run as root\n" "${0}"
+  exit 1
+fi
+
+dscacheutil -flushcache
+killall -HUP mDNSResponder

@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+usage() {
+    local SCRIPT_NAME
+    SCRIPT_NAME="$(basename "${BASH_SOURCE[0]}")"
+
+    >&2 echo "Usage: ${SCRIPT_NAME} [options] [--] [remote]
+
+Available options:
+
+    -h    This help screen
+    -d    Delete gone branches
+    -D    Force-delete gone branches
+
+Parsing options stops after '--' (if given).
+If neither -d or -D are specified, gone branches will only be listed.
+If not specified, remote will be set to 'origin'.
+"
+    exit 0
+}
+
+gone_branches() {(
+    # Ensure missing branches are marked with "gone"
+    LANG=en
+
+    git --no-pager branch \
+        --no-column \
+        --format "%(refname:short) %(objectname:short) %(upstream:track)" \
+    | grep -F "[gone]" \
+    | cut -d\  -f1
+
+)}
+
+git_remote_prune() {
+    git --no-pager remote prune "${@}"
+}
+
+git_branch_delete() {
+    git --no-pager branch -d "${@}"
+}
+
+git_branch_force_delete() {
+    git --no-pager branch -D "${@}"
+}
+
+git_branch_list() {
+    git --no-pager branch --list --verbose "${@}"
+}
+
+parse_options() {
+    DELETE_ACTION="git_branch_list"
+
+    while getopts ":hdD" option
+    do
+        case "${option}" in
+            h) usage                                        ;;
+            d) DELETE_ACTION="git_branch_delete"            ;;
+            D) DELETE_ACTION="git_branch_force_delete"      ;;
+            \?)
+            echo "Invalid option: -${OPTARG}" >&2
+            usage
+            ;;
+        esac
+    done
+
+    shift $((OPTIND-1))
+
+    REMOTE="${1:-origin}"
+}
+
+main() {
+    parse_options "${@+${@}}"
+    
+    git_remote_prune "${REMOTE}"
+
+    IFS=$'\n' read -d '' -r -a GONE_BRANCHES < <(gone_branches) || true
+
+    # When there are no gone branches, git_branch_list will show all branches, which might be confusing
+    # I also wonder what might happen when using no arguments for git_branch_force_delete
+    if (( ${#GONE_BRANCHES[@]} > 0 ))
+    then
+        "${DELETE_ACTION}" "${GONE_BRANCHES[@]}"
+    fi
+}
+
+main "${@+${@}}"
