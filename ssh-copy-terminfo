@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+remoteHost="{1?Missing argument: hostname}"
+
+infocmp -x | ssh "${remoteHost}" -- tic -x -
