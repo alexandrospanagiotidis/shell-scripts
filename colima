@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+# Prevent infinite recursion since this script should be before the real colima in PATH
+colima="/opt/homebrew/bin/colima"
+
+args=()
+
+if [[ -n ${COLIMA_PROFILE:-} ]]
+then
+    args+=("--profile" "${COLIMA_PROFILE}")
+fi
+
+args+=("${@:+${@}}")
+
+"${colima}" ${args[@]+"${args[@]}"}

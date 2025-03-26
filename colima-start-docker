@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+# macOS only
+getDnsServers() {
+    grep nameserver <(scutil --dns) \
+        | cut -d: -f2 \
+        | tr -d '[:blank:]' \
+        | uniq
+}
+
+args=(
+"-v"
+"start"
+"--cpu" "3"
+"--disk" "50"
+"--memory" "3"
+#"--network-address"
+#"--network-host-addresses"
+"--vm-type" "vz"
+"--vz-rosetta"
+"--mount-type" "virtiofs"
+"--mount-inotify"
+"--activate" "false"
+"--runtime" "docker"
+)
+
+while read -r dnsServer
+do
+    args+=("--dns" "${dnsServer}")
+done < <(getDnsServers)
+
+args+=("${@+${@}}")
+
+colima "${args[@]}"
