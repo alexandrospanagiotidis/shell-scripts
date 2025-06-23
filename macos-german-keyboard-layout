@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+defaults write com.apple.HIToolbox AppleSelectedInputSources -array \
+'{
+InputSourceKind = "Keyboard Layout";
+"KeyboardLayout ID" = 3;
+"KeyboardLayout Name" = German;
+}'
