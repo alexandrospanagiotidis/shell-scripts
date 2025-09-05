@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#
+# Create a Python virtual environment.
+
+set -o errexit -o nounset -o pipefail
+
+target="${1:-.venv}"
+
+python3 -m venv "${target}"
