@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+# Use timestamp if given as parameter
+LANG=C TZ=GMT date ${1+"-r ${1}"} +'%a, %d %b %Y %H:%M:%S %Z'
