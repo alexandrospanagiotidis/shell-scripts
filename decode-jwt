@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# via https://gist.github.com/thomasdarimont/46358bc8167fce059d83a1ebdb92b0e7?permalink_comment_id=3776714#gistcomment-3776714
+
+jq -R 'split(".") | .[1] | @base64d | fromjson'

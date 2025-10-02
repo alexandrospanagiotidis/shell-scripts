@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+jwt=$(</dev/stdin)
+
+exp=$(<<< "${jwt}" decode-jwt | jq '.exp')
+now=$(date +%s)
+
+(( now >= exp ))
