@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+#
+# See https://en.wikipedia.org/wiki/Digest_access_authentication
+
+set -o errexit -o nounset -o pipefail
+
+username="${1?Missing argument: username}"
+password="${2?Missing argument: password}"
+digestRealm="${3?Missing argument: realm}"
+method="${4?Missing argument: method}"
+uri="${5?Missing argument: uri}"
+digestNonce="${6?Missing argument: nonce}"
+clientNonceNumber="${7?Missing argument: clientNonceNumber}"
+clientNonce="${8?Missing argument: clientNonce}"
+qop="${9?Missing argument: qop}"
+
+shift 9
+
+join() {
+    local delimiter="${1}"
+    shift
+    local parts=("${@}")
+    
+    printf -v joined -- "%s${delimiter}" "${parts[@]}"
+    printf -- "%s" "${joined%"${delimiter}"}"
+}
+
+ha1() {
+    args=(
+        "${username}"
+        "${digestRealm}"
+        "${password}"
+    )
+
+    join ":" "${args[@]}"
+}
+
+ha2() {
+    args=(
+        "${method}"
+        "${uri}"
+    )
+
+    join ":" "${args[@]}"
+}
+
+digest_response() {
+    args=(
+        "$(ha1 | md5)"
+        "${digestNonce}"
+        "${clientNonceNumber}"
+        "${clientNonce}"
+        "${qop}"
+        "$(ha2 | md5)"
+    )
+
+    join ":" "${args[@]}"
+}
+
+digest_response | md5
