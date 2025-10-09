@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #
-# Create a Python virtual environment.
+# Create a Python virtual environment
+# Activate it via `source .venv/bin/activate`
 
 set -o errexit -o nounset -o pipefail
 

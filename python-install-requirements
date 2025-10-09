@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#
+# Install Python requirements
+
+set -o errexit -o nounset -o pipefail
+
+pip install -r requirements.txt "${@+${@}}"
