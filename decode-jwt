@@ -1,5 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# via https://gist.github.com/thomasdarimont/46358bc8167fce059d83a1ebdb92b0e7?permalink_comment_id=3776714#gistcomment-3776714
+# based on https://gist.github.com/thomasdarimont/46358bc8167fce059d83a1ebdb92b0e7?permalink_comment_id=3776714#gistcomment-3776714
 
-jq -R 'split(".") | .[1] | @base64d | fromjson'
+jq -R '
+split(".") as $p |
+{
+    header: ($p[0] | @base64d | fromjson),
+    payload: ($p[1] | @base64d | fromjson),
+    sig: $p[2],
+}
+'
