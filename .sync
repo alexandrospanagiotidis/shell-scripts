@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+source="${PWD}/"
+target="${1:-${HOME}/.local/bin}"
+
+rsyncArgs=(
+"-a"  # archive, includes metadata, permissions, and does recursive sync
+"-u"  # skip if destination is newer
+"-v"  # verbose
+#"--progress"
+"--exclude=.git"
+"--exclude=.gitignore"
+"--exclude=.sync"
+)
+
+rsync "${rsyncArgs[@]}" "${source}" "${target}"
