@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+trim() {
+    set -- "${1#"${1%%[![:space:]]*}"}"
+    set -- "${1%"${1##*[![:space:]]}"}"
+    printf '%s\n' "${1}"
+}
+
+if [ $# -eq 0 ]
+then
+    while IFS= read -r line
+    do
+        trim "${line}"
+    done
+else
+    for arg in "${@}"; do
+        trim "${arg}"
+    done
+fi

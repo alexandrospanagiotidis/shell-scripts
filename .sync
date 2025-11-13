@@ -6,13 +6,11 @@ source="${PWD}/"
 target="${1:-${HOME}/.local/bin}"
 
 rsyncArgs=(
-"-a"  # archive, includes metadata, permissions, and does recursive sync
-"-u"  # skip if destination is newer
-"-v"  # verbose
+"--archive"  # archive: syncs recursively including metadata and permissions
+"--update"  # skip if destination is newer
+"--verbose"
 #"--progress"
-"--exclude=.git"
-"--exclude=.gitignore"
-"--exclude=.sync"
+"--exclude-from=./.sync-exclude"
 )
 
 rsync "${rsyncArgs[@]}" "${source}" "${target}"
