@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset
+
+sourceFile="${1?Missing argument: source file}"
+
+shift 1
+
+yqEvalArgs=(
+"--prettyPrint"
+"${@+${@}}"
+)
+
+yqEvalExpression='
+sort_keys(..)
+'
+
+yq eval "${yqEvalExpression}" "${yqEvalArgs[@]}" "${sourceFile}"
