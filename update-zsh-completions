@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+generatedCompletions=(
+"bat --completion zsh"
+"fd --gen-completions zsh"
+"fx --comp zsh"
+"gh completion -s zsh"
+"glab completion -s zsh"
+"glow completion zsh"
+"mise completion zsh"  # requires `usage`: mise use -g usage
+"nb completions zsh"
+"ngrok completion"  # seems to auto-detect shell
+"podman completion zsh"
+"rg --generate complete-zsh"
+"skate completion zsh"
+"starship completions zsh"
+"uv generate-shell-completion zsh"
+"yq shell-completion zsh"
+"zellij setup --generate-completion zsh"
+)
+
+downloadedCompletions=(
+"direnv https://raw.githubusercontent.com/zsh-users/zsh-completions/refs/heads/master/src/_direnv"
+"hurl https://raw.githubusercontent.com/Orange-OpenSource/hurl/refs/heads/master/completions/_hurl"
+)
+
+
+localDir="${HOME}/.local/share/zsh/site-functions"
+
+
+is_available() {
+  command -v "${1}" &>/dev/null
+}
+
+generate_completion() {
+  local binary="${1?Missing argument: binary}"
+
+  local targetFile="${localDir}/_${binary}"
+
+  if is_available "${binary}"
+  then
+    printf -- "Generating %s\n" "${targetFile}"
+    "${@}" > "${targetFile}"
+  else
+    printf -- "Not found: %s\n" "$binary"
+  fi
+}
+
+generate_completions() {
+  for cmd in "${@}"
+  do
+    read -ra args <<< "${cmd}"
+    generate_completion "${args[@]}"
+  done
+}
+
+download_completion() {
+  local binary="${1?Missing argument: binary}"
+  local url="${2?Missing argument: URL}"
+
+  local targetFile="${localDir}/_${binary}"
+
+  if is_available "${binary}"
+  then
+    printf -- "Downloading %s\n" "${targetFile}"
+    curl -fsSL "${url}" -o "${targetFile}"
+  else
+    printf -- "Not found: %s\n" "${binary}"
+  fi    
+}
+
+download_completions() {
+  for entry in "${@}"
+  do
+    read -r name url <<< "${entry}"
+    download_completion "${name}" "${url}"
+  done
+}
+
+main() {
+  mkdir -p "${localDir}"
+  generate_completions "${generatedCompletions[@]}"
+  download_completions "${downloadedCompletions[@]}"
+}
+
+
+main
