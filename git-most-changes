@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+#
+# List the most changed files of a Git repository:
+#
+#     git most-changes [source dir]
+#
+# Environment variables
+# 
+# GIT_MOST_CHANGES_SINCE    argument to "--since", defaults to "1 year ago"
+# GIT_MOST_CHANGES_LINES    number of lines to show, defaults to 20
+#
+# Borrowed from https://piechowski.io/post/git-commands-before-reading-code/
+
+set -o errexit -o nounset -o pipefail
+
+sourceDir="${1+${1}}"
+
+since="${GIT_MOST_CHANGES_SINCE:-1 year ago}"
+numberOfEntries="${GIT_MOST_CHANGES_LINES:-20}"
+
+gitLogArgs=(
+"--format=format:"
+"--name-only"
+"--since='${since}'"
+)
+
+[[ ${sourceDir:+isSet} ]] && gitLogArgs+=("--" "${sourceDir}")
+
+git log "${gitLogArgs[@]}" |
+    sort |
+    uniq -c |
+    sort -nr |
+    head "-${numberOfEntries}"
